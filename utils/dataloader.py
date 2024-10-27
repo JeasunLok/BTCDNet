@@ -5,7 +5,7 @@ from torch.utils.data import Dataset
 import matplotlib.pyplot as plt
 
 class HSI_Dataset(Dataset):
-    def __init__(self, data_t1, data_t2, labels, patch_size=5, band_patch=3, mode="train"):
+    def __init__(self, data_t1, data_t2, labels, patch_size=5, band_patches=3, mode="train"):
         """
         初始化数据集
         :param data_t1: 高光谱图像数据 t1
@@ -18,7 +18,7 @@ class HSI_Dataset(Dataset):
         self.data_t2 = data_t2
         self.labels = labels
         self.patch_size = patch_size
-        self.band_patch = band_patch
+        self.band_patch = band_patches
         self.mode = mode
         self.height, self.width, self.band = self.data_t1.shape
 
@@ -154,15 +154,15 @@ class HSI_Dataset(Dataset):
 # 使用示例
 if __name__ == "__main__":
     # 这里假设你已经加载了 data_t1, data_t2, 和 labels
-    data_t1 = np.random.rand(100, 100, 20)  # 示例数据，100x100 像素，20 个波段
-    data_t2 = np.random.rand(100, 100, 20)  # 示例数据
+    data_t1 = np.random.rand(100, 100, 166)  # 示例数据，100x100 像素，166 个波段
+    data_t2 = np.random.rand(100, 100, 166)  # 示例数据
     labels = np.random.randint(0, 2, (100, 100))  # 示例标签，二值化（0 和 1）
 
     patch_size = 5  # 每个小块的大小
-    band_patch = 3  # 增强的波段数量
+    band_patches = 3  # 增强的波段数量
 
     # 创建数据集实例
-    hsi_dataset = HSI_Dataset(data_t1, data_t2, labels, patch_size, band_patch, "test")
+    hsi_dataset = HSI_Dataset(data_t1, data_t2, labels, patch_size, band_patches, "test")
 
     # 打印数据集的大小
     print(f"Dataset Size: {len(hsi_dataset)}")
