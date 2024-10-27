@@ -5,6 +5,7 @@ from einops.layers.torch import Rearrange
 import numpy as np
 import torch.nn as nn
 from timm.models.layers import DropPath, to_2tuple, trunc_normal_
+import time
 
 class SwishImplementation(torch.autograd.Function):
     @staticmethod
@@ -572,32 +573,25 @@ if __name__ == "__main__":
     # 运行模型并打印输出形状
     output = model(input1, input2)
     print(output.shape)
-    
 
+    # GPU 计时
+    if device == 'cuda':
+        torch.cuda.synchronize()
+        starter, ender = torch.cuda.Event(enable_timing=True), torch.cuda.Event(enable_timing=True)
+        starter.record()
+        with torch.no_grad():
+            _ = model(input1, input2)
+        ender.record()
+        torch.cuda.synchronize()
+        print(f"Inference time: {starter.elapsed_time(ender)} ms")
 
-
-    # # 创建示例输入数据
-    # x1 = torch.randn(1, patches**2 * band_patches, band).to(device)
-    # x2 = torch.randn(1, patches**2 * band_patches, band).to(device)
-
-    # # GPU 计时
-    # if device == 'cuda':
-    #     torch.cuda.synchronize()
-    #     starter, ender = torch.cuda.Event(enable_timing=True), torch.cuda.Event(enable_timing=True)
-    #     starter.record()
-    #     with torch.no_grad():
-    #         _ = model(x1, x2)
-    #     ender.record()
-    #     torch.cuda.synchronize()
-    #     print(f"Inference time: {starter.elapsed_time(ender)} ms")
-
-    # # CPU 计时
-    # else:
-    #     start_time = time.time()
-    #     with torch.no_grad():
-    #         _ = model(x1, x2)
-    #     end_time = time.time()
-    #     print(f"Inference time: {(end_time - start_time) * 1000} ms")
+    # CPU 计时
+    else:
+        start_time = time.time()
+        with torch.no_grad():
+            _ = model(input1, input2)
+        end_time = time.time()
+        print(f"Inference time: {(end_time - start_time) * 1000} ms")
 
     # 计算并打印模型参数量
     total_params = sum(p.numel() for p in model.parameters())
