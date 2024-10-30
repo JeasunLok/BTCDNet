@@ -11,6 +11,10 @@ from torch.utils.tensorboard import SummaryWriter
 from sklearn.metrics import ConfusionMatrixDisplay
 
 from models.sstvit import SSTViT
+from models.BCDMNet import BCDMNet
+from models.BCDMNet_no import BCDMNet_no
+from models.BCDMNet_noP import BCDMNet_noP
+from models.BCDMNet_noS import BCDMNet_noS
 from utils.dataloader import HSI_Dataset
 from utils.metrics import output_metric
 from utils.utils import load_hsi_mat_data
@@ -25,9 +29,9 @@ pretrained = False # pretrained or not
 model_path = r"" # model path
 
 # model settings
-model_type = "SSTViT"
+model_type = "BCDMNet_no" # SSTViT BCDMNet BCDMNet_no BCDMNet_noS BCDMNet_noP
 patches = 5
-band_patches = 3
+band_patches = 1
 num_classes = 3
 
 # training settings
@@ -43,13 +47,13 @@ gamma = 0.9
 ignore_index = 0
 
 # data settings
-num_samples = 500 # number of training samples
+num_samples = 20 # number of training samples
 HSI_data_path = r"/home/ljs/BCDMNet/data/China_Change_Dataset.mat"
 
 # time setting
-np.random.seed(1)
-torch.manual_seed(1)
-torch.cuda.manual_seed(1)
+np.random.seed(3413)
+torch.manual_seed(3413)
+torch.cuda.manual_seed(3413)
 
 # GPU settings
 os.environ["CUDA_VISIBLE_DEVICES"] = gpu
@@ -60,7 +64,7 @@ cudnn.benchmark = False
 # make the run folder in logs
 #-------------------------------------------------------------------------------
 time_now = time.localtime()
-time_folder = os.path.join("logs", time.strftime("%Y-%m-%d-%H-%M-%S", time_now))
+time_folder = os.path.join("logs", time.strftime("%Y-%m-%d-%H-%M-%S", time_now)+"_"+model_type)
 os.makedirs(time_folder, exist_ok=True)
 
 # Initialize TensorBoard writer
@@ -104,24 +108,128 @@ else:
 
 # models
 #-------------------------------------------------------------------------------
-model = SSTViT(
-    image_size = patches,
-    near_band = band_patches,
-    num_patches = band,
-    num_classes = num_classes,
-    dim = 32,
-    depth = 2,
-    heads = 4,
-    dim_head = 16,
-    mlp_dim = 8,
-    b_dim = 512,
-    b_depth = 3,
-    b_heads = 8,
-    b_dim_head= 32,
-    b_mlp_head = 8,
-    dropout = 0.2,
-    emb_dropout = 0.1,
-)
+if model_type == "SSTViT":
+    if band_patches >= 3:
+        model = SSTViT(
+            image_size = patches,
+            near_band = band_patches,
+            num_patches = band,
+            num_classes = num_classes,
+            dim = 32,
+            depth = 2,
+            heads = 4,
+            dim_head = 16,
+            mlp_dim = 8,
+            b_dim = 512,
+            b_depth = 3,
+            b_heads = 8,
+            b_dim_head= 32,
+            b_mlp_head = 8,
+            dropout = 0.2,
+            emb_dropout = 0.1,
+        )
+    else:
+        raise ValueError("band patches error!")
+
+elif model_type == "BCDMNet_no":
+    if band_patches == 1:
+        model = BCDMNet_no(
+                in_chans=band, 
+                num_classes=num_classes, 
+                embed_dim=[96, 192], 
+                depths=[2, 2], 
+                num_heads=[3, 6], 
+                n_iter=[1, 1], 
+                stoken_size=[2, 1], 
+                mlp_ratio=4, 
+                qkv_bias=True, 
+                qk_scale=None, 
+                drop_rate=0, 
+                attn_drop_rate=0, 
+                drop_path_rate=0.1, 
+                projection=512, 
+                freeze_bn=False, 
+                layerscale=[False, False, False, False], 
+                init_values=1e-6,
+                temperature=0.5
+            )
+    else:
+        raise ValueError("band patches error!")
+
+elif model_type == "BCDMNet_noS":
+    if band_patches == 1:
+        model = BCDMNet_noS(
+                in_chans=band, 
+                num_classes=num_classes, 
+                embed_dim=[96, 192], 
+                depths=[2, 2], 
+                num_heads=[3, 6], 
+                n_iter=[1, 1], 
+                stoken_size=[2, 1], 
+                mlp_ratio=4, 
+                qkv_bias=True, 
+                qk_scale=None, 
+                drop_rate=0, 
+                attn_drop_rate=0, 
+                drop_path_rate=0.1, 
+                projection=512, 
+                freeze_bn=False, 
+                layerscale=[False, False, False, False], 
+                init_values=1e-6,
+                temperature=0.5
+            )
+    else:
+        raise ValueError("band patches error!")
+    
+elif model_type == "BCDMNet_noP":
+    if band_patches == 1:
+        model = BCDMNet_noP(
+                in_chans=band, 
+                num_classes=num_classes, 
+                embed_dim=[96, 192], 
+                depths=[2, 2], 
+                num_heads=[3, 6], 
+                n_iter=[1, 1], 
+                stoken_size=[2, 1], 
+                mlp_ratio=4, 
+                qkv_bias=True, 
+                qk_scale=None, 
+                drop_rate=0, 
+                attn_drop_rate=0, 
+                drop_path_rate=0.1, 
+                projection=512, 
+                freeze_bn=False, 
+                layerscale=[False, False, False, False], 
+                init_values=1e-6,
+                temperature=0.5
+            )
+    else:
+        raise ValueError("band patches error!")
+
+elif model_type == "BCDMNet":
+    if band_patches == 1:
+        model = BCDMNet(
+                in_chans=band, 
+                num_classes=num_classes, 
+                embed_dim=[96, 192], 
+                depths=[2, 2], 
+                num_heads=[3, 6], 
+                n_iter=[1, 1], 
+                stoken_size=[2, 1], 
+                mlp_ratio=4, 
+                qkv_bias=True, 
+                qk_scale=None, 
+                drop_rate=0, 
+                attn_drop_rate=0, 
+                drop_path_rate=0.1, 
+                projection=512, 
+                freeze_bn=False, 
+                layerscale=[False, False, False, False], 
+                init_values=1e-6,
+                temperature=0.5
+            )
+    else:
+        raise ValueError("band patches error!")
 #-------------------------------------------------------------------------------
 
 # obtain dataset and dataloader
