@@ -4,6 +4,10 @@ import torch.nn.functional as F
 from einops import rearrange, repeat
 from einops.layers.torch import Rearrange
 import numpy as np
+import time
+from fvcore.nn import FlopCountAnalysis
+import warnings
+warnings.filterwarnings("ignore", category=UserWarning)
 
 class Residual(nn.Module):
     def __init__(self, fn):
@@ -362,4 +366,73 @@ class SSTViT(nn.Module):
         # MLP classification layer
         return self.mlp_head(out)
 
+if __name__ == "__main__":
+    # 创建模型实例，定义输入参数
 
+    patches = 5
+    band_patches = 3
+    num_classes = 3
+    band = 166
+
+    model = SSTViT(
+        image_size = patches,
+        near_band = band_patches,
+        num_patches = band,
+        num_classes = num_classes,
+        dim = 64,
+        depth = 2,
+        heads = 4,
+        dim_head = 16,
+        mlp_dim = 8,
+        b_dim = 512,
+        b_depth = 3,
+        b_heads = 8,
+        b_dim_head= 32,
+        b_mlp_head = 8,
+        dropout = 0.2,
+        emb_dropout = 0.1,
+    )
+
+    # 测试推理时间
+    device = 'cuda' if torch.cuda.is_available() else 'cpu'
+    model = model.to(device)
+    model.eval()
+
+    input1 = torch.randn(3, patches**2*band_patches, band).to(device)
+    input2 = torch.randn(3, patches**2*band_patches, band).to(device)
+    print(input1.shape)
+    output = model(input1,  input2)
+    print(output.shape)
+
+
+    # 创建示例输入数据
+    x1 = torch.randn(1, patches**2 * band_patches, band).to(device)
+    x2 = torch.randn(1, patches**2 * band_patches, band).to(device)
+
+    # GPU 计时
+    if device == 'cuda':
+        torch.cuda.synchronize()
+        starter, ender = torch.cuda.Event(enable_timing=True), torch.cuda.Event(enable_timing=True)
+        starter.record()
+        with torch.no_grad():
+            _ = model(x1, x2)
+        ender.record()
+        torch.cuda.synchronize()
+        print(f"Inference time: {starter.elapsed_time(ender)} ms")
+
+    # CPU 计时
+    else:
+        start_time = time.time()
+        with torch.no_grad():
+            _ = model(x1, x2)
+        end_time = time.time()
+        print(f"Inference time: {(end_time - start_time) * 1000} ms")
+
+    # 计算并打印模型参数量
+    total_params = sum(p.numel() for p in model.parameters())
+    trainable_params = sum(p.numel() for p in model.parameters() if p.requires_grad)
+    print(f"Total parameters: {total_params/1e6}M")
+    print(f"Trainable parameters: {trainable_params/1e6}M")
+
+    flops = FlopCountAnalysis(model, (input1, input2))
+    print(f"FLOPs: {flops.total() / 1e6} MFLOPs")  # 将FLOPs转换为GFLOPs
