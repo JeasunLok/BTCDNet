@@ -6,7 +6,6 @@ import matplotlib.pyplot as plt
 
 class HSI_Dataset(Dataset):
     def __init__(self, data_t1, data_t2, labels, patch_size=5, band_patches=3, mode="train"):
-    def __init__(self, data_t1, data_t2, labels, patch_size=5, band_patches=3, mode="train"):
         """
         初始化数据集
         :param data_t1: 高光谱图像数据 t1
