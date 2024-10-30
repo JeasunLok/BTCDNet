@@ -6,6 +6,7 @@ import matplotlib.pyplot as plt
 
 class HSI_Dataset(Dataset):
     def __init__(self, data_t1, data_t2, labels, patch_size=5, band_patches=3, mode="train"):
+    def __init__(self, data_t1, data_t2, labels, patch_size=5, band_patches=3, mode="train"):
         """
         初始化数据集
         :param data_t1: 高光谱图像数据 t1
@@ -18,6 +19,7 @@ class HSI_Dataset(Dataset):
         self.data_t2 = data_t2
         self.labels = labels
         self.patch_size = patch_size
+        self.band_patch = band_patches
         self.band_patch = band_patches
         self.mode = mode
         self.height, self.width, self.band = self.data_t1.shape
@@ -162,6 +164,7 @@ if __name__ == "__main__":
     band_patches = 1  # 增强的波段数量
 
     # 创建数据集实例
+    hsi_dataset = HSI_Dataset(data_t1, data_t2, labels, patch_size, band_patches, "test")
     hsi_dataset = HSI_Dataset(data_t1, data_t2, labels, patch_size, band_patches, "test")
 
     # 打印数据集的大小

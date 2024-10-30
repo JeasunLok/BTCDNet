@@ -139,7 +139,7 @@ class Transformer(nn.Module):
         return x
 
 class SSTransformer(nn.Module):
-    def __init__(self, dim, depth, heads, dim_head, mlp_head, b_dim, b_depth, b_heads, b_dim_head, b_mlp_head, num_patches, dropout):
+    def __init__(self, dim, depth, heads, dim_head, mlp_dim, b_dim, b_depth, b_heads, b_dim_head, b_mlp_head, num_patches, dropout):
         super().__init__()
 
         self.layers = nn.ModuleList([])
@@ -149,7 +149,7 @@ class SSTransformer(nn.Module):
         for _ in range(depth):
             self.layers.append(nn.ModuleList([
                 Residual(PreNorm(dim, Attention(dim, heads = heads, dim_head = dim_head, dropout = dropout))),
-                Residual(PreNorm(dim, FeedForward(dim, mlp_head, dropout = dropout)))
+                Residual(PreNorm(dim, FeedForward(dim, mlp_dim, dropout = dropout)))
             ]))
         for _ in range(b_depth):
             self.k_layers.append(nn.ModuleList([
@@ -170,116 +170,6 @@ class SSTransformer(nn.Module):
             x = attn(x, mask = mask)
             x = ff(x)
         return x
-
-class SSTransformer_pyramid(nn.Module):
-    def __init__(self, dim, depth, heads, dim_head, mlp_head, b_dim, b_depth, b_heads, b_dim_head, b_mlp_head, num_patches, dropout):
-        super().__init__()
-
-        self.layers = nn.ModuleList([])
-        self.k_layers = nn.ModuleList([])
-        self.channels_to_embedding = nn.Linear(num_patches, b_dim)
-        self.cls_token = nn.Parameter(torch.randn(1, 1, b_dim))
-        for _ in range(depth):
-            self.layers.append(nn.ModuleList([
-                Residual(PreNorm(dim, Attention(dim, heads = heads, dim_head = dim_head, dropout = dropout))),
-                Residual(PreNorm(dim, FeedForward(dim, mlp_head, dropout = dropout)))
-            ]))
-        for _ in range(b_depth):
-            self.k_layers.append(nn.ModuleList([
-                Residual(PreNorm(b_dim, Attention(dim=b_dim, heads=b_heads, dim_head=b_dim_head, dropout = dropout))),
-                Residual(PreNorm(b_dim, FeedForward(b_dim, b_mlp_head, dropout = dropout)))
-            ]))
-
-    def forward(self, x, mask = None):
-        for attn, ff in self.layers:
-            x = attn(x, mask = mask)
-            x = ff(x)
-        out_feature = x
-        x = rearrange(x, 'b n d -> b d n')
-        x = self.channels_to_embedding(x)
-        b, d, n = x.shape
-        cls_tokens = repeat(self.cls_token, '() n d -> b n d', b = b)
-        x = torch.cat((cls_tokens, x), dim = 1)
-        for attn, ff in self.k_layers:
-            x = attn(x, mask = mask)
-            x = ff(x)
-        return x, out_feature
-
-class ViT(nn.Module):
-    def __init__(self, image_size, near_band, num_patches, num_classes, dim, depth, heads, mlp_dim, pool='cls', channel_dim=1, dim_head = 16, dropout=0., emb_dropout=0., mode='ViT'):
-        super().__init__()
-
-        patch_dim = image_size ** 2 * near_band
-
-        self.pos_embedding = nn.Parameter(torch.randn(1, num_patches + 1, dim))
-        self.patch_to_embedding = nn.Linear(channel_dim, dim)
-        self.cls_token = nn.Parameter(torch.randn(1, 1, dim))
-
-        self.dropout = nn.Dropout(emb_dropout)
-        self.transformer = Transformer(dim, depth, heads, dim_head, mlp_dim, dropout, num_patches, mode)
-
-        self.pool = pool
-        self.to_latent = nn.Identity()
-
-        self.mlp_head = nn.Sequential(
-            nn.LayerNorm(dim),
-            nn.Linear(dim, num_classes)
-        )
-    def forward(self, x, mask = None):
-        # patchs[batch, patch_num, patch_size*patch_size*c]  [batch,200,145*145]
-        # x = rearrange(x, 'b c h w -> b c (h w)')
-        ## embedding every patch vector to embedding size: [batch, patch_num, embedding_size]
-
-        x = self.patch_to_embedding(x) #[b,n,dim]
-        b, n, _ = x.shape
-
-        # add position embedding
-        cls_tokens = repeat(self.cls_token, '() n d -> b n d', b = b) #[b,1,dim]
-        x = torch.cat((cls_tokens, x), dim = 1) #[b,n+1,dim]
-        x += self.pos_embedding[:, :(n + 1)]
-        x = self.dropout(x)
-        # transformer: x[b,n + 1,dim] -> x[b,n + 1,dim]
-        x = self.transformer(x, mask)
-        # classification: using cls_token output
-        x = self.to_latent(x[:,0])
-
-        # MLP classification layer
-        return self.mlp_head(x)
-
-class SSFormer_v4(nn.Module):
-    def __init__(self, dim, depth, heads, dim_head, mlp_head, b_dim, b_depth, b_heads, b_dim_head, b_mlp_head, num_patches, dropout, mode):
-        super().__init__()
-
-        self.layers = nn.ModuleList([])
-        self.k_layers = nn.ModuleList([])
-        self.channels_to_embedding = nn.Linear(num_patches, b_dim)
-        self.cls_token = nn.Parameter(torch.randn(1, 1, b_dim))
-        for _ in range(depth):
-            self.layers.append(nn.ModuleList([
-                Residual(PreNorm(dim, Attention(dim, heads = heads, dim_head = dim_head, dropout = dropout))),
-                Residual(PreNorm(dim, FeedForward(dim, mlp_head, dropout = dropout)))
-            ]))
-        for _ in range(b_depth):
-            self.k_layers.append(nn.ModuleList([
-                Residual(PreNorm(b_dim, Attention(dim=b_dim, heads=b_heads, dim_head=b_dim_head, dropout = dropout))),
-                Residual(PreNorm(b_dim, FeedForward(b_dim, b_mlp_head, dropout = dropout)))
-            ]))
-        self.mode = mode
-
-    def forward(self, x, c, mask = None):
-        for attn, ff in self.layers:
-            x = attn(x, mask = mask)
-            x = ff(x)
-        x = rearrange(x, 'b n d -> b d n')
-        x = self.channels_to_embedding(x)
-        b, d, n = x.shape
-        cls_tokens = repeat(c, '() n d -> b n d', b = b)
-        x = torch.cat((cls_tokens, x), dim = 1)
-        for attn, ff in self.k_layers:
-            x = attn(x, mask = mask)
-            x = ff(x)
-        return x
-
 
 class SSTTransformerEncoder(nn.Module):
 
@@ -315,7 +205,7 @@ class SSTTransformerEncoder(nn.Module):
         return cat1_out, cat2_out
 
 class SSTViT(nn.Module):
-    def __init__(self, image_size, near_band, num_patches, num_classes, dim, depth, heads, mlp_dim, b_dim, b_depth, b_heads, b_dim_head, b_mlp_head, pool='cls', channels=1, dim_head = 16, dropout=0., emb_dropout=0., multi_scale_enc_depth=1):
+    def __init__(self, image_size, near_band, num_patches, num_classes, dim, depth, heads, mlp_dim, b_dim, b_depth, b_heads, b_dim_head, b_mlp_head, dim_head = 16, dropout=0., emb_dropout=0., multi_scale_enc_depth=1):
         super().__init__()
 
         patch_dim = image_size ** 2 * near_band
@@ -332,7 +222,6 @@ class SSTViT(nn.Module):
             self.multi_scale_transformers.append(SSTTransformerEncoder(dim, depth, heads, dim_head, mlp_dim,b_dim, b_depth, b_heads, b_dim_head, b_mlp_head, self.num_patches,
                                                                                     dropout = 0.))
 
-        self.pool = pool
         self.to_latent = nn.Identity()
 
         self.mlp_head = nn.Sequential(
@@ -343,8 +232,10 @@ class SSTViT(nn.Module):
         # patchs[batch, patch_num, patch_size*patch_size*c]  [batch,200,145*145]
         # x = rearrange(x, 'b c h w -> b c (h w)')
         ## embedding every patch vector to embedding size: [batch, patch_num, embedding_size]
+        print(torch.transpose(x1, 1, 2).shape)
         x1 = self.patch_to_embedding(torch.transpose(x1, 1, 2)) #[b,n,dim]
         x2 = self.patch_to_embedding(torch.transpose(x2, 1, 2))
+        print(x1.shape)
         b, n, _ = x1.shape
         # add position embedding
         cls_tokens_t1 = repeat(self.cls_token_t1, '() n d -> b n d', b = b) #[b,1,dim]
@@ -357,6 +248,7 @@ class SSTViT(nn.Module):
         x2 += self.pos_embedding[:, :(n + 1)]
         x2 = self.dropout(x2)
         # transformer: x[b,n + 1,dim] -> x[b,n + 1,dim]
+        print(x1.shape, x2.shape)
         for multi_scale_transformer in self.multi_scale_transformers:
             out1, out2 = multi_scale_transformer(x1, x2)
         # classification: using cls_token output
@@ -366,6 +258,43 @@ class SSTViT(nn.Module):
         # MLP classification layer
         return self.mlp_head(out)
 
+if __name__ == "__main__":
+    # 创建模型实例，定义输入参数
+
+    patches = 5
+    band_patches = 3
+    num_classes = 3
+    band = 166
+
+    model = SSTViT(
+        image_size = patches,
+        near_band = band_patches,
+        num_patches = band,
+        num_classes = num_classes,
+        dim = 64,
+        depth = 2,
+        heads = 4,
+        dim_head = 16,
+        mlp_dim = 8,
+        b_dim = 512,
+        b_depth = 3,
+        b_heads = 8,
+        b_dim_head= 32,
+        b_mlp_head = 8,
+        dropout = 0.2,
+        emb_dropout = 0.1,
+    )
+
+    # 测试推理时间
+    device = 'cuda' if torch.cuda.is_available() else 'cpu'
+    model = model.to(device)
+    model.eval()
+
+    input1 = torch.randn(3, patches**2*band_patches, band).to(device)
+    input2 = torch.randn(3, patches**2*band_patches, band).to(device)
+    print(input1.shape)
+    output = model(input1,  input2)
+    print(output.shape)
 if __name__ == "__main__":
     # 创建模型实例，定义输入参数
 
