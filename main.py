@@ -15,6 +15,9 @@ from models.BCDMNet import BCDMNet
 from models.BCDMNet_no import BCDMNet_no
 from models.BCDMNet_noP import BCDMNet_noP
 from models.BCDMNet_noS import BCDMNet_noS
+from models.CSANet import CSANet
+from models.BIT import BIT
+from models.GETNET import GETNET
 from utils.dataloader import HSI_Dataset
 from utils.metrics import output_metric
 from utils.utils import load_hsi_mat_data
@@ -29,7 +32,7 @@ pretrained = False # pretrained or not
 model_path = r"" # model path
 
 # model settings
-model_type = "BCDMNet_no" # SSTViT BCDMNet BCDMNet_no BCDMNet_noS BCDMNet_noP
+model_type = "BCDMNet_no" # SSTViT CSANet BCDMNet BCDMNet_no BCDMNet_noS BCDMNet_noP
 patches = 5
 band_patches = 1
 num_classes = 3
@@ -37,7 +40,7 @@ num_classes = 3
 # training settings
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 DP = True
-gpu = "1,2,3"
+gpu = "0,1,2,3"
 epoch = 50
 test_freq = 500
 batch_size = 256
@@ -131,6 +134,33 @@ if model_type == "SSTViT":
     else:
         raise ValueError("band patches error!")
 
+elif model_type == "CSANet":
+    if band_patches == 1:
+        model = CSANet(
+            in_chans=band, 
+            num_classes=num_classes
+        )
+    else:
+        raise ValueError("band patches error!")
+
+elif model_type == "BIT":
+    if band_patches == 1:
+        model = BIT(
+            in_chans=band, 
+            num_classes=num_classes
+        )
+    else:
+        raise ValueError("band patches error!")
+
+elif model_type == "GETNET":
+    if band_patches == 1:
+        model = GETNET(
+            in_chans=band, 
+            num_classes=num_classes
+        )
+    else:
+        raise ValueError("band patches error!")
+    
 elif model_type == "BCDMNet_no":
     if band_patches == 1:
         model = BCDMNet_no(
