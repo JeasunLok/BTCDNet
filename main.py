@@ -18,6 +18,7 @@ from models.BCDMNet_noS import BCDMNet_noS
 from models.CSANet import CSANet
 from models.BIT import BIT
 from models.GETNET import GETNET
+from models.ReCNN import ReCNN
 from utils.dataloader import HSI_Dataset
 from utils.metrics import output_metric
 from utils.utils import load_hsi_mat_data
@@ -32,7 +33,7 @@ pretrained = False # pretrained or not
 model_path = r"" # model path
 
 # model settings
-model_type = "BCDMNet_no" # SSTViT CSANet BCDMNet BCDMNet_no BCDMNet_noS BCDMNet_noP
+model_type = "BCDMNet_no" # SSTViT CSANet BIT GETNET ReCNN BCDMNet BCDMNet_no BCDMNet_noS BCDMNet_noP
 patches = 5
 band_patches = 1
 num_classes = 3
@@ -155,6 +156,15 @@ elif model_type == "BIT":
 elif model_type == "GETNET":
     if band_patches == 1:
         model = GETNET(
+            in_chans=band, 
+            num_classes=num_classes
+        )
+    else:
+        raise ValueError("band patches error!")
+
+elif model_type == "ReCNN":
+    if band_patches == 1:
+        model = ReCNN(
             in_chans=band, 
             num_classes=num_classes
         )

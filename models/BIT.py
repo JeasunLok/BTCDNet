@@ -678,8 +678,8 @@ if __name__ == "__main__":
     print(model)
 
     # 随机生成一个输入，假设输入尺寸为 (B, C, H, W) = (1, 3, 224, 224)
-    input1 = torch.randn(2, 5, 5, 166).cuda()
-    input2 = torch.randn(2, 5, 5, 166).cuda()
+    input1 = torch.randn(2, 5, 5, 166).to(device)
+    input2 = torch.randn(2, 5, 5, 166).to(device)
 
     # 运行模型并打印输出形状
     output = model(input1, input2)

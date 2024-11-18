@@ -333,3 +333,31 @@ if __name__ == "__main__":
     output = model(input1,  input2)
     print(output.shape)
 
+    # GPU 计时
+    if device == 'cuda':
+        torch.cuda.synchronize()
+        starter, ender = torch.cuda.Event(enable_timing=True), torch.cuda.Event(enable_timing=True)
+        starter.record()
+        with torch.no_grad():
+            _ = model(input1, input2)
+        ender.record()
+        torch.cuda.synchronize()
+        print(f"Inference time: {starter.elapsed_time(ender)} ms")
+
+    # CPU 计时
+    else:
+        start_time = time.time()
+        with torch.no_grad():
+            _ = model(input1, input2)
+        end_time = time.time()
+        print(f"Inference time: {(end_time - start_time) * 1000} ms")
+
+    # 计算并打印模型参数量
+    total_params = sum(p.numel() for p in model.parameters())
+    trainable_params = sum(p.numel() for p in model.parameters() if p.requires_grad)
+    print(f"Total parameters: {total_params/1e6}M")
+    print(f"Trainable parameters: {trainable_params/1e6}M")
+
+    flops = FlopCountAnalysis(model, (input1, input2))
+    print(f"FLOPs: {flops.total() / 1e6} MFLOPs")  # 将FLOPs转换为GFLOPs
+
