@@ -196,7 +196,7 @@ class PatchMerging(nn.Module):
         x = self.proj(x)
         return x
     
-class BCDMNet_noS(nn.Module):   
+class BTCDMNet_no(nn.Module):   
     def __init__(self, in_chans=3, num_classes=1000,
                  embed_dim=[96, 192, 384, 768], depths=[2, 2, 6, 2], num_heads=[3, 6, 12, 24],
                  n_iter=[1, 1, 1, 1], stoken_size=[8, 4, 2, 1],                
@@ -339,23 +339,6 @@ class BCDMNet_noS(nn.Module):
     def forward(self, x1, x2):
         x1 = x1.permute(0, 3, 1, 2)
         x2 = x2.permute(0, 3, 1, 2)
-        bayesian_prob_step = 0
-        f_prob_likelyhood_list = []
-        f_prob_posterior_list = []
-        f = []
-        # print("origin:", x1.shape)
-
-        x1_center = self.get_center_values(x1)
-        x2_center = self.get_center_values(x2)
-        # print("center:", x1_center.shape)
-
-        sam_prob = self.compute_normalized_spectral_angles(x1_center, x2_center)
-        f_prob_likelyhood = sam_prob
-        f_prob_likelyhood_list.append(f_prob_likelyhood)
-        f_prob_posterior = sam_prob
-        f_prob_posterior_list.append(f_prob_posterior)
-        # print("sam_prob:", sam_prob.shape)
-        # print(sam_prob)
 
         x1 = self.patch_embed(x1)
         x2 = self.patch_embed(x2)
@@ -365,23 +348,10 @@ class BCDMNet_noS(nn.Module):
         x2 = self.pos_drop(x2)
         # print("patch dropout:", x1.shape)
 
-        f.append(x1+x2)
-        f_prob_likelyhood = self.f_prob[bayesian_prob_step](x1+x2)
-        f_prob_likelyhood_list.append(f_prob_likelyhood)
-        f_prob_posterior = self.compute_posterior(f_prob_posterior, f_prob_likelyhood)
-        f_prob_posterior_list.append(f_prob_posterior)
-        bayesian_prob_step = bayesian_prob_step + 1
 
         for layer in self.layers:            
             x1 = layer(x1)
             x2 = layer(x2)
-            f.append(x1+x2)
-            # print("layer:",x1.shape)
-            f_prob_likelyhood = self.f_prob[bayesian_prob_step](x1+x2)
-            f_prob_likelyhood_list.append(f_prob_likelyhood)
-            f_prob_posterior = self.compute_posterior(f_prob_posterior, f_prob_likelyhood)
-            f_prob_posterior_list.append(f_prob_posterior)
-            bayesian_prob_step = bayesian_prob_step + 1
         
         x1 = self.proj(x1)
         x2 = self.proj(x2)
@@ -395,31 +365,15 @@ class BCDMNet_noS(nn.Module):
         x2 = self.swish(x2)
         # print("swish:", x1.shape)
 
-        f.append(x1+x2)
-        f_prob_likelyhood = self.f_prob[bayesian_prob_step](x1+x2)
-        f_prob_likelyhood_list.append(f_prob_likelyhood)
-        f_prob_posterior = self.compute_posterior(f_prob_posterior, f_prob_likelyhood)
-        f_prob_posterior_list.append(f_prob_posterior)
-        bayesian_prob_step = bayesian_prob_step + 1
         
         x1 = self.avgpool(x1).flatten(1)  # B C 1  
         x2 = self.avgpool(x2).flatten(1)  # B C 1   
         # print("avgpool:", x1.shape)  
 
-        f.append(x1+x2)
-        f_prob_likelyhood = self.f_prob[bayesian_prob_step](x1+x2)
-        f_prob_likelyhood_list.append(f_prob_likelyhood)
-        f_prob_posterior = self.compute_posterior(f_prob_posterior, f_prob_likelyhood)
-        f_prob_posterior_list.append(f_prob_posterior)
-
         # print("likelyhood:", f_prob_likelyhood_list)
         # print("posterior:", f_prob_posterior_list)
 
         x = self.head(x1+x2)
-
-        x_sub = x[:, 1:]
-        x_posterior = x_sub * f_prob_posterior / self.temperature
-        x = torch.cat((x[:, :1], x_posterior), dim=1)
 
         # print("output:", x.shape)  
 
@@ -436,7 +390,7 @@ if __name__ == "__main__":
     # 测试推理时间
     device = 'cuda' if torch.cuda.is_available() else 'cpu'
 
-    model = BCDMNet_noS(in_chans=166, num_classes=3, embed_dim=[96, 192], depths=[2, 2], num_heads=[3, 6], n_iter=[1, 1], stoken_size=[2, 1], mlp_ratio=4., qkv_bias=True, qk_scale=None, drop_rate=0., attn_drop_rate=0., drop_path_rate=0.1, projection=512, freeze_bn=False, layerscale=[False, False, False, False], init_values=1e-6).to(device)
+    model = BTCDMNet_no(in_chans=166, num_classes=3, embed_dim=[96, 192], depths=[2, 2], num_heads=[3, 6], n_iter=[1, 1], stoken_size=[2, 1], mlp_ratio=4., qkv_bias=True, qk_scale=None, drop_rate=0., attn_drop_rate=0., drop_path_rate=0.1, projection=512, freeze_bn=False, layerscale=[False, False, False, False], init_values=1e-6).to(device)
 
     # 打印模型结构（可选）
     print(model)
