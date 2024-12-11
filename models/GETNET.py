@@ -50,6 +50,8 @@ class GETNET(nn.Module):
         )
         self.fc2 = nn.Linear(512, num_classes) 
 
+        self.global_avg_pool = nn.AdaptiveAvgPool2d((1, 1))
+
     def forward(self, x1, x2):
         x1 = x1.permute(0, 3, 1, 2) 
         x2 = x2.permute(0, 3, 1, 2)
@@ -66,6 +68,9 @@ class GETNET(nn.Module):
         x1 = self.maxpool4(self.lsconv4(x1))
         x2 = self.maxpool4(self.lsconv4(x2))
 
+        x1 = self.global_avg_pool(x1)
+        x2 = self.global_avg_pool(x2)
+        
         x1 = x1.view(x1.size(0), -1)  # Flatten
         x2 = x2.view(x2.size(0), -1)  # Flatten
 
