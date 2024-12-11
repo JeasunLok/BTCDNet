@@ -293,15 +293,14 @@ if DP:
     model = torch.nn.DataParallel(model)
 model = model.to(device)
 # criterion
-weight = torch.tensor([0, positive_num/(positive_num+negative_num), negative_num/(positive_num+negative_num)])
+# weight = torch.tensor([0, positive_num/(positive_num+negative_num), negative_num/(positive_num+negative_num)])
 # weight = torch.tensor([0, negative_num/(positive_num+negative_num), positive_num/(positive_num+negative_num)])
-criterion = nn.CrossEntropyLoss(ignore_index=ignore_index, weight=weight).to(device)
-# criterion = nn.CrossEntropyLoss(ignore_index=ignore_index).to(device)
+# criterion = nn.CrossEntropyLoss(ignore_index=ignore_index, weight=weight).to(device)
+criterion = nn.CrossEntropyLoss(ignore_index=ignore_index).to(device)
 # optimizer
 optimizer = torch.optim.Adam(model.parameters(), lr=learning_rate, weight_decay=weight_decay)
 # scheduler
 # scheduler = torch.optim.lr_scheduler.StepLR(optimizer, step_size=epoch//10, gamma=gamma)
-# scheduler = torch.optim.lr_scheduler.StepLR(optimizer, step_size=1, gamma=gamma)
 scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer, T_max=epoch//25, eta_min=min_learning_rate)
 #-------------------------------------------------------------------------------
 

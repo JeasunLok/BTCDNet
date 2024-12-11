@@ -20,46 +20,6 @@ class AverageMeter(object):
     self.average = self.sum / self.count
 #-------------------------------------------------------------------------------
 
-# a function to load hsi data
-#-------------------------------------------------------------------------------
-# def load_hsi_mat_data(file_path, num_samples):
-#     # load mat data
-#     mat_data = scipy.io.loadmat(file_path)
-
-#     # get T1 and T2 data
-#     data_t1 = mat_data['T1']
-#     data_t2 = mat_data['T2']
-    
-#     # get binary label
-#     data_label = mat_data['Binary'].astype(int)
-    
-#     # search negative and positive location
-#     negative_position = np.array(np.where(data_label == 0)).transpose(1, 0)
-#     positive_position = np.array(np.where(data_label == 1)).transpose(1, 0)
-    
-#     negative_over_positive_ratio = negative_position.shape[0]/positive_position.shape[0]
-
-#     # change label
-#     data_label[data_label == 0] = 2  # 将 0 替换为 2
-
-#     # tandom select data
-#     selected_negative = np.random.choice(negative_position.shape[0], int(num_samples*negative_over_positive_ratio), replace=False)
-#     selected_positive = np.random.choice(positive_position.shape[0], int(num_samples), replace=False)
-    
-#     selected_negative_position = negative_position[selected_negative]
-#     selected_positive_position = positive_position[selected_positive]
-    
-#     # initialize train data
-#     train_label = np.zeros(data_label.shape)
-#     for i in range(int(num_samples*negative_over_positive_ratio)):
-#         train_label[selected_negative_position[i][0], selected_negative_position[i][1]] = 2  # 2-negative
-#     for i in range(int(num_samples)):
-#         train_label[selected_positive_position[i][0], selected_positive_position[i][1]] = 1  # 1-positive
-
-#     # initialize test data
-#     test_label = data_label - train_label  # remove train_label from data_label
-
-#     return data_t1, data_t2, train_label, test_label, data_label, int(num_samples*negative_over_positive_ratio), int(num_samples)
     
 def load_hsi_mat_data(file_path, num_samples):
     # load mat data
