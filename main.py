@@ -33,7 +33,7 @@ pretrained = False # pretrained or not
 model_path = r"" # model path
 
 # model settings
-model_type = "BCDMNet_no" # SSTViT CSANet BIT GETNET ReCNN BTCDMNet BTCDMNet_no BTCDMNet_noS BTCDMNet_noP
+model_type = "BTCDMNet_noT" # SSTViT CSANet BIT GETNET ReCNN BTCDMNet BTCDMNet_no BTCDMNet_noT BTCDMNet_noP
 patches = 5
 band_patches = 1
 num_classes = 3
@@ -42,22 +42,26 @@ num_classes = 3
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 DP = True
 gpu = "0,1,2,3"
-epoch = 50
+epoch = 200
 test_freq = 500
-batch_size = 256
-learning_rate = 5e-4
+batch_size = 64
+learning_rate = 1e-3
+min_learning_rate = 0.001 * learning_rate
 weight_decay = 0
-gamma = 0.9
+gamma = 0.8
 ignore_index = 0
+random_seed = 998
 
 # data settings
-num_samples = 20 # number of training samples
-HSI_data_path = r"/home/ljs/BCDMNet/data/China_Change_Dataset.mat"
+num_samples = 100 # number of training samples
+HSI_data_path = r"/home/ljs/BTCDMNet/data/Hermiston.mat"
 
 # time setting
-np.random.seed(3413)
-torch.manual_seed(3413)
-torch.cuda.manual_seed(3413)
+np.random.seed(random_seed)
+torch.manual_seed(random_seed)
+torch.cuda.manual_seed(random_seed)
+torch.cuda.manual_seed_all(random_seed) 
+os.environ['PYTHONHASHSEED'] = str(random_seed)
 
 # GPU settings
 os.environ["CUDA_VISIBLE_DEVICES"] = gpu
@@ -93,7 +97,7 @@ for key, value in params.items():
 
 # data loading
 #-------------------------------------------------------------------------------
-data_t1, data_t2, train_label, test_label, all_label = load_hsi_mat_data(HSI_data_path, num_samples)
+data_t1, data_t2, train_label, test_label, all_label, negative_num, positive_num = load_hsi_mat_data(HSI_data_path, num_samples)
 plt.imsave(os.path.join(time_folder, "train_label.png"), train_label, cmap='gray_r', dpi=300)
 plt.imsave(os.path.join(time_folder, "test_label.png"), test_label, cmap='gray_r', dpi=300)
 plt.imsave(os.path.join(time_folder, "data_label.png"), all_label, cmap='gray_r', dpi=300)
@@ -196,7 +200,7 @@ elif model_type == "BTCDMNet_no":
     else:
         raise ValueError("band patches error!")
 
-elif model_type == "BTCDMNet_noS":
+elif model_type == "BTCDMNet_noT":
     if band_patches == 1:
         model = BTCDMNet_noT(
                 in_chans=band, 
@@ -289,13 +293,16 @@ if DP:
     model = torch.nn.DataParallel(model)
 model = model.to(device)
 # criterion
-criterion = nn.CrossEntropyLoss(ignore_index=ignore_index).to(device)
+weight = torch.tensor([0, positive_num/(positive_num+negative_num), negative_num/(positive_num+negative_num)])
+# weight = torch.tensor([0, negative_num/(positive_num+negative_num), positive_num/(positive_num+negative_num)])
+criterion = nn.CrossEntropyLoss(ignore_index=ignore_index, weight=weight).to(device)
+# criterion = nn.CrossEntropyLoss(ignore_index=ignore_index).to(device)
 # optimizer
 optimizer = torch.optim.Adam(model.parameters(), lr=learning_rate, weight_decay=weight_decay)
 # scheduler
 # scheduler = torch.optim.lr_scheduler.StepLR(optimizer, step_size=epoch//10, gamma=gamma)
-scheduler = torch.optim.lr_scheduler.StepLR(optimizer, step_size=1, gamma=gamma)
-# scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer, T_max=epoch//10, eta_min=5e-4)
+# scheduler = torch.optim.lr_scheduler.StepLR(optimizer, step_size=1, gamma=gamma)
+scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer, T_max=epoch//25, eta_min=min_learning_rate)
 #-------------------------------------------------------------------------------
 
 # start training or testing
@@ -309,7 +316,7 @@ if mode == "train":
     print("===============================================================================")
     print("start training")
     tic = time.time()
-
+    best_loss = 1e9
     for e in range(epoch): 
         model.train()
         train_acc, train_loss, label_t, prediction_t = train_epoch(model, train_loader, criterion, optimizer, e, epoch, device)
@@ -323,6 +330,11 @@ if mode == "train":
         writer.add_scalar('AA/train', AA_train, e+1)  
         writer.add_scalar('Kappa/train', Kappa_train, e+1)  
 
+        if train_loss < best_loss:
+            torch.save(model, os.path.join(time_folder, "model_best.pt"))
+            torch.save(model.state_dict(), os.path.join(time_folder, "model_state_dict_best.pth"))
+            best_loss = train_loss
+    
         if ((e+1) % test_freq == 0) | (e == epoch - 1):
             print("===============================================================================")
             print("start testing")      
@@ -371,17 +383,19 @@ else:
 
 if mode == "train":
     # save model and its parameters 
-    torch.save(model, os.path.join(time_folder, "model.pt"))
-    torch.save(model.state_dict(), os.path.join(time_folder, "model_state_dict.pth"))
+    torch.save(model, os.path.join(time_folder, "model_last.pt"))
+    torch.save(model.state_dict(), os.path.join(time_folder, "model_state_dict_last.pth"))
 
 print("start predicting")
+model.load_state_dict(torch.load(os.path.join(time_folder, "model_state_dict_best.pth")))
 model.eval()
 
 # output classification maps
 pre_u = predict_epoch(model, all_loader, device)
 prediction = np.zeros((height, width), dtype=float)
 for idx, (row, col) in enumerate(np.ndindex(height, width)):
-    prediction[row, col] = pre_u[idx]  
+    if all_label[row, col] != 0:
+        prediction[row, col] = pre_u[idx]  
 plt.imsave(os.path.join(time_folder, "predict_result.png"), prediction, cmap='gray_r', dpi=300)
 
 # write prediction image to TensorBoard
