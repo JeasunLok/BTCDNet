@@ -33,7 +33,7 @@ pretrained = False # pretrained or not
 model_path = r"" # model path
 
 # model settings
-model_type = "BTCDMNet" # SSTViT CSANet BIT GETNET ReCNN BTCDMNet BTCDMNet_no BTCDMNet_noT BTCDMNet_noP
+model_type = "BTCDMNet" # SSTViT CSANet BIT GETNET ReCNN BTCDMNet BTCDMNet_no BTCDMNet_noT BTCDMNet_noP 
 patches = 5
 band_patches = 1
 num_classes = 3
