@@ -33,7 +33,7 @@ pretrained = False # pretrained or not
 model_path = r"" # model path
 
 # model settings
-model_type = "BTCDMNet_noT" # SSTViT CSANet BIT GETNET ReCNN BTCDMNet BTCDMNet_no BTCDMNet_noT BTCDMNet_noP
+model_type = "BTCDMNet" # SSTViT CSANet BIT GETNET ReCNN BTCDMNet BTCDMNet_no BTCDMNet_noT BTCDMNet_noP
 patches = 5
 band_patches = 1
 num_classes = 3
@@ -45,16 +45,16 @@ gpu = "0,1,2,3"
 epoch = 200
 test_freq = 500
 batch_size = 64
-learning_rate = 1e-3
-min_learning_rate = 0.001 * learning_rate
+learning_rate = 1e-4
+min_learning_rate = 0.01 * learning_rate
 weight_decay = 0
 gamma = 0.8
 ignore_index = 0
-random_seed = 998
+random_seed = 3407
 
 # data settings
 num_samples = 100 # number of training samples
-HSI_data_path = r"/home/ljs/BTCDMNet/data/Hermiston.mat"
+HSI_data_path = r"/home/ljs/BTCDMNet/data/Shenzhen.mat"
 
 # time setting
 np.random.seed(random_seed)
