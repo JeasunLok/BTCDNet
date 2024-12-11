@@ -14,8 +14,8 @@ class HSI_Dataset(Dataset):
         :param patch_size: 每个小块的大小
         :param band_patch: 增强的波段数量
         """
-        self.data_t1 = data_t1
-        self.data_t2 = data_t2
+        self.data_t1 = self.normalize_data(data_t1)
+        self.data_t2 = self.normalize_data(data_t2)
         self.labels = labels
         self.patch_size = patch_size
         self.band_patch = band_patches
@@ -31,6 +31,24 @@ class HSI_Dataset(Dataset):
         # 记录原始标签中有效的索引
         self.valid_indices = self.get_valid_indices()
 
+    def normalize_data(self, data):
+        """
+        对输入数据进行归一化到 [0, 1] 或标准化
+        :param data: 高光谱图像数据
+        :return: 归一化后的数据
+        """
+        # # 最小-最大归一化
+        # min_val = np.min(data)
+        # max_val = np.max(data)
+        # normalized_data = (data - min_val) / (max_val - min_val + 1e-8)
+        
+        # # 如果需要标准化，可以用以下代码
+        mean = np.mean(data, axis=(0, 1))  # 每个波段的均值
+        std = np.std(data, axis=(0, 1))   # 每个波段的标准差
+        normalized_data = (data - mean) / (std + 1e-8)
+
+        return normalized_data
+    
     def pad_data(self, data, mode):
         """
         对数据进行镜像填充
