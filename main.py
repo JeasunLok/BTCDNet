@@ -30,7 +30,7 @@ from predict import predict_epoch
 # model mode
 mode = "train" # train or test
 pretrained = False # pretrained or not
-model_path = r"" # model path
+model_path = "" # model path
 
 # model settings
 model_type = "BTCDMNet" # SSTViT CSANet BIT GETNET ReCNN BTCDMNet BTCDMNet_no BTCDMNet_noT BTCDMNet_noP 
@@ -44,7 +44,7 @@ DP = True
 gpu = "0,1,2,3"
 epoch = 200
 test_freq = 500
-batch_size = 64
+batch_size = 256
 learning_rate = 1e-4
 min_learning_rate = 0.01 * learning_rate
 weight_decay = 0
@@ -54,7 +54,7 @@ random_seed = 3407
 
 # data settings
 num_samples = 100 # number of training samples
-HSI_data_path = r"/home/ljs/BTCDMNet/data/Shenzhen.mat"
+HSI_data_path = "data/Shenzhen.mat"
 
 # time setting
 np.random.seed(random_seed)
@@ -86,7 +86,6 @@ params = {
     "Batch Size": batch_size,
     "Learning Rate": learning_rate,
     "Weight Decay": weight_decay,
-    "Gamma": gamma,
     "GPU(s)": gpu,
     "training samples": num_samples,
 }
@@ -300,7 +299,6 @@ criterion = nn.CrossEntropyLoss(ignore_index=ignore_index).to(device)
 # optimizer
 optimizer = torch.optim.Adam(model.parameters(), lr=learning_rate, weight_decay=weight_decay)
 # scheduler
-# scheduler = torch.optim.lr_scheduler.StepLR(optimizer, step_size=epoch//10, gamma=gamma)
 scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer, T_max=epoch//25, eta_min=min_learning_rate)
 #-------------------------------------------------------------------------------
 
