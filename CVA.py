@@ -69,24 +69,26 @@ data_label = data_label.flatten()
 change_mask = change_mask.flatten()
 
 # 计算混淆矩阵
-conf_matrix = confusion_matrix(data_label, change_mask, labels=[1, 2])
+change_mask[change_mask == 2] = 0
+data_label[data_label == 2] = 0
+conf_matrix = confusion_matrix(data_label, change_mask, labels=[0, 1])
 print("Confusion Matrix:")
 print(conf_matrix)
 
 # 计算 Cohen's Kappa 系数
-kappa = cohen_kappa_score(data_label, change_mask, labels=[1, 2])
+kappa = cohen_kappa_score(data_label, change_mask, labels=[0, 1])
 print("Kappa:", kappa)
 
 # 计算 Recall（召回率）
-recall = recall_score(data_label, change_mask, average='weighted', labels=[1, 2])
+recall = recall_score(data_label, change_mask, average='weighted', labels=[0, 1])
 print("Recall:", recall)
 
 # 计算 Precision（精确率）
-precision = precision_score(data_label, change_mask, average='weighted', labels=[1, 2])
+precision = precision_score(data_label, change_mask, average='weighted', labels=[0, 1])
 print("Precision:", precision)
 
 # 计算 F1 Score
-f1 = f1_score(data_label, change_mask, average='weighted', labels=[1, 2])
+f1 = f1_score(data_label, change_mask, average='weighted', labels=[0, 1])
 print("F1 Score:", f1)
 
 with open(os.path.join(time_folder, "output_metrics.txt"), 'w') as file:
