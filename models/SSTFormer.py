@@ -232,10 +232,8 @@ class SSTFormer(nn.Module):
         # patchs[batch, patch_num, patch_size*patch_size*c]  [batch,200,145*145]
         # x = rearrange(x, 'b c h w -> b c (h w)')
         ## embedding every patch vector to embedding size: [batch, patch_num, embedding_size]
-        print(torch.transpose(x1, 1, 2).shape)
         x1 = self.patch_to_embedding(torch.transpose(x1, 1, 2)) #[b,n,dim]
         x2 = self.patch_to_embedding(torch.transpose(x2, 1, 2))
-        print(x1.shape)
         b, n, _ = x1.shape
         # add position embedding
         cls_tokens_t1 = repeat(self.cls_token_t1, '() n d -> b n d', b = b) #[b,1,dim]
@@ -248,7 +246,6 @@ class SSTFormer(nn.Module):
         x2 += self.pos_embedding[:, :(n + 1)]
         x2 = self.dropout(x2)
         # transformer: x[b,n + 1,dim] -> x[b,n + 1,dim]
-        print(x1.shape, x2.shape)
         for multi_scale_transformer in self.multi_scale_transformers:
             out1, out2 = multi_scale_transformer(x1, x2)
         # classification: using cls_token output
@@ -258,43 +255,6 @@ class SSTFormer(nn.Module):
         # MLP classification layer
         return self.mlp_head(out)
 
-if __name__ == "__main__":
-    # 创建模型实例，定义输入参数
-
-    patches = 5
-    band_patches = 3
-    num_classes = 3
-    band = 166
-
-    model = SSTFormer(
-        image_size = patches,
-        near_band = band_patches,
-        num_patches = band,
-        num_classes = num_classes,
-        dim = 64,
-        depth = 2,
-        heads = 4,
-        dim_head = 16,
-        mlp_dim = 8,
-        b_dim = 512,
-        b_depth = 3,
-        b_heads = 8,
-        b_dim_head= 32,
-        b_mlp_head = 8,
-        dropout = 0.2,
-        emb_dropout = 0.1,
-    )
-
-    # 测试推理时间
-    device = 'cuda' if torch.cuda.is_available() else 'cpu'
-    model = model.to(device)
-    model.eval()
-
-    input1 = torch.randn(3, patches**2*band_patches, band).to(device)
-    input2 = torch.randn(3, patches**2*band_patches, band).to(device)
-    print(input1.shape)
-    output = model(input1,  input2)
-    print(output.shape)
 if __name__ == "__main__":
     # 创建模型实例，定义输入参数
 
