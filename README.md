@@ -1,4 +1,4 @@
-# BTCDMNet: Biscale Convolutional Self-Attention Network for Hyperspectral Coastal Wetlands Classification
+# BTCDMNet: Bayesian Tile Attention Network for Hyperspectral Mangroves Change Detection
 
 ***
 # Introduction
@@ -40,7 +40,7 @@ python main_argparse.py -mt HyperBCS -hbcsm 3D -e 100 -lr 5e-3 -bs 32 -d CamPha
 
 ### 4. More detailed information
 ```
-python main_argparse.py -h
+see and change config.yaml
 ```
 
 ***

@@ -18,7 +18,7 @@ settings:
   random_seed: 3407
 
 model:
-  model_type: "BTCDMNet"
+  model_type: "BTCDMNet" # SSTFormer CSANet BIT GETNET ReCNN BTCDMNet BTCDMNet_no BTCDMNet_noT BTCDMNet_noP 
   patches: 5
   band_patches: 1
   num_classes: 3
