@@ -204,7 +204,7 @@ class SSTTransformerEncoder(nn.Module):
 
         return cat1_out, cat2_out
 
-class SSTViT(nn.Module):
+class SSTFormer(nn.Module):
     def __init__(self, image_size, near_band, num_patches, num_classes, dim, depth, heads, mlp_dim, b_dim, b_depth, b_heads, b_dim_head, b_mlp_head, dim_head = 16, dropout=0., emb_dropout=0., multi_scale_enc_depth=1):
         super().__init__()
 
@@ -266,7 +266,7 @@ if __name__ == "__main__":
     num_classes = 3
     band = 166
 
-    model = SSTViT(
+    model = SSTFormer(
         image_size = patches,
         near_band = band_patches,
         num_patches = band,
@@ -303,7 +303,7 @@ if __name__ == "__main__":
     num_classes = 3
     band = 166
 
-    model = SSTViT(
+    model = SSTFormer(
         image_size = patches,
         near_band = band_patches,
         num_patches = band,

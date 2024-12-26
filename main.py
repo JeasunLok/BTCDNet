@@ -10,7 +10,7 @@ from torch.utils.data import DataLoader
 from torch.utils.tensorboard import SummaryWriter 
 from sklearn.metrics import ConfusionMatrixDisplay
 
-from models.sstvit import SSTViT
+from models.SSTFormer import SSTFormer
 from models.BTCDMNet import BTCDMNet
 from models.BTCDMNet_no import BTCDMNet_no
 from models.BTCDMNet_noP import BTCDMNet_noP
@@ -33,7 +33,7 @@ pretrained = False # pretrained or not
 model_path = "" # model path
 
 # model settings
-model_type = "BTCDMNet" # SSTViT CSANet BIT GETNET ReCNN BTCDMNet BTCDMNet_no BTCDMNet_noT BTCDMNet_noP 
+model_type = "BTCDMNet" # SSTFormer CSANet BIT GETNET ReCNN BTCDMNet BTCDMNet_no BTCDMNet_noT BTCDMNet_noP 
 patches = 5
 band_patches = 1
 num_classes = 3
@@ -115,9 +115,9 @@ else:
 
 # models
 #-------------------------------------------------------------------------------
-if model_type == "SSTViT":
+if model_type == "SSTFormer":
     if band_patches >= 3:
-        model = SSTViT(
+        model = SSTFormer(
             image_size = patches,
             near_band = band_patches,
             num_patches = band,

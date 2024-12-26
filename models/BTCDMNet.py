@@ -197,7 +197,7 @@ class TileAttention(nn.Module):
                     stoken_features = stoken_features/(affinity_matrix_sum + 1e-12) # (B, C, hh, ww)
         
         stoken_features = pixel_features.transpose(-1, -2) @ affinity_matrix # (B, hh*ww, C, 9)
-        stoken_features = self.fold(stoken_features.permute(0, 2, 3, 1).reshape(B*C, 9, hh, ww)).reshape(B, C, hh, ww)            
+        stoken_features = self.fold(stoken_features.permute(0, 2, 3, 1).reshape(B*C, 9, hh, ww)).reshape(B, C, hh,ww)           
         stoken_features = stoken_features/(affinity_matrix_sum.detach() + 1e-12) # (B, C, hh, ww)
         
         if self.refine:
@@ -207,7 +207,7 @@ class TileAttention(nn.Module):
         stoken_features = stoken_features.transpose(1, 2).reshape(B, hh*ww, C, 9) # (B, hh*ww, C, 9)
         pixel_features = stoken_features @ affinity_matrix.transpose(-1, -2) # (B, hh*ww, C, h*w)
         pixel_features = pixel_features.reshape(B, hh, ww, C, h, w).permute(0, 3, 1, 4, 2, 5).reshape(B, C, H, W)
-                
+
         if pad_r > 0 or pad_b > 0:
             pixel_features = pixel_features[:, :, :H0, :W0]
         

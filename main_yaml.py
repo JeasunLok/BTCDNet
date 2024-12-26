@@ -13,7 +13,7 @@ import yaml
 import torch
 import argparse
 
-from models.sstvit import SSTViT
+from models.SSTFormer import SSTFormer
 from models.BTCDMNet import BTCDMNet
 from models.BTCDMNet_no import BTCDMNet_no
 from models.BTCDMNet_noP import BTCDMNet_noP
@@ -145,7 +145,7 @@ def main(config):
     #-------------------------------------------------------------------------------
     if model_type == "SSTViT":
         if band_patches >= 3:
-            model = SSTViT(
+            model = SSTFormer(
                 image_size = patches,
                 near_band = band_patches,
                 num_patches = band,
