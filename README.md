@@ -1,9 +1,9 @@
-# HyperBCS: Biscale Convolutional Self-Attention Network for Hyperspectral Coastal Wetlands Classification
+# BTCDMNet: Biscale Convolutional Self-Attention Network for Hyperspectral Coastal Wetlands Classification
 
 ***
 # Introduction
 
-<b> Official implementation of [HyperBCS](https://ieeexplore.ieee.org/abstract/document/10384648) by [Junshen Luo](https://github.com/JeasunLok), Zhi He, Haomei Lin, Heqian Wu. </b>
+<b> Official implementation of [BTCDMNet](https://ieeexplore.ieee.org/abstract/document/10384648) by [Junshen Luo](https://github.com/JeasunLok), Jiahe Li, Xinlin Chu, Sai Yang, Lingjun Tao and Qian Shi. </b>
 ***
 ![](images/3D-HyperBCS.jpg)
 
