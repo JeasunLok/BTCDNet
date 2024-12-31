@@ -34,9 +34,7 @@ chmod +x demo.sh
 ```
 
 ### 4. More detailed information
-```
-see config.yaml
-```
+see `config.yaml`
 
 ***
 ## Contact Information
