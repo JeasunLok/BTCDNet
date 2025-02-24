@@ -25,7 +25,7 @@ Baiduyun: https://pan.baidu.com/s/1hyye2fVxoUaOJ6YR_RUSJg
 
 Google Drive: https://drive.google.com/drive/folders/1xe9i95_noh8dBW7sGn_z4uIfePBsa8r2
 
-### 3. Quick start to use our SOTA model 3D-HyperBCS
+### 3. Quick start to use our SOTA model BTCDMNet
 
 <b> You should change the settings in config.yaml especially `HSI_data_path` and `model_type` then: </b>
 ```
