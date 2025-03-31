@@ -384,6 +384,7 @@ if mode == "train":
     torch.save(model.state_dict(), os.path.join(time_folder, "model_state_dict_last.pth"))
 
 print("start predicting")
+tic = time.time()
 model.load_state_dict(torch.load(os.path.join(time_folder, "model_state_dict_best.pth")))
 model.eval()
 
@@ -402,6 +403,8 @@ writer.add_image('Prediction Result', prediction_image, 0, dataformats='HWC')
 # close the TensorBoard writer
 writer.close()
 
+toc = time.time()
+print("Running Time: {:.2f}".format(toc-tic))
 print("end predicting")
 print("===============================================================================")
 

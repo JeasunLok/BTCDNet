@@ -412,6 +412,7 @@ def main(config):
         torch.save(model.state_dict(), os.path.join(time_folder, "model_state_dict_last.pth"))
 
     print("start predicting")
+    tic = time.time()
     model.load_state_dict(torch.load(os.path.join(time_folder, "model_state_dict_best.pth")))
     model.eval()
 
@@ -430,6 +431,8 @@ def main(config):
     # close the TensorBoard writer
     writer.close()
 
+    toc = time.time()
+    print("Running Time: {:.2f}".format(toc-tic))
     print("end predicting")
     print("===============================================================================")
 
