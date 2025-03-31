@@ -11,6 +11,7 @@ time_now = time.localtime()
 time_folder = os.path.join("logs", time.strftime("%Y-%m-%d-%H-%M-%S", time_now)+"_"+model_type)
 os.makedirs(time_folder, exist_ok=True)
 
+tic = time.time()
 file_path = r"data/Shenzhen.mat"
 mat_data = scipy.io.loadmat(file_path)
 # get T1 and T2 data
@@ -30,7 +31,10 @@ magnitude = np.sqrt(np.sum(change_vector**2, axis=-1))
 # Step 3: 使用 Otsu 方法计算阈值
 otsu_threshold = threshold_otsu(magnitude)
 print(f"otsu_threshold: {otsu_threshold}")
+toc = time.time()
+print("Running Time: {:.2f}".format(toc-tic))
 
+tic = time.time()
 # Step 4: 根据阈值分割显著变化区域
 change_mask = magnitude > otsu_threshold
 # 将布尔类型数组转换为整数类型
@@ -39,6 +43,8 @@ change_mask[change_mask == 1] = 1
 change_mask[change_mask == 0] = 2
 change_mask[data_label == 0] = 0
 
+toc = time.time()
+print("Running Time: {:.2f}".format(toc-tic))
 # # 可视化结果
 # plt.figure(figsize=(12, 8))
 # plt.subplot(1, 3, 1)
