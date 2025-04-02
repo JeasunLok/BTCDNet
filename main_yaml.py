@@ -14,10 +14,10 @@ import torch
 import argparse
 
 from models.SSTFormer import SSTFormer
-from models.BTCDMNet import BTCDMNet
-from models.BTCDMNet_no import BTCDMNet_no
-from models.BTCDMNet_noP import BTCDMNet_noP
-from models.BTCDMNet_noT import BTCDMNet_noT
+from models.BTCDNet import BTCDNet
+from models.BTCDNet_no import BTCDNet_no
+from models.BTCDNet_noP import BTCDNet_noP
+from models.BTCDNet_noT import BTCDNet_noT
 from models.CSANet import CSANet
 from models.BIT import BIT
 from models.GETNET import GETNET
@@ -202,9 +202,9 @@ def main(config):
         else:
             raise ValueError("band patches error!")
         
-    elif model_type == "BTCDMNet_no":
+    elif model_type == "BTCDNet_no":
         if band_patches == 1:
-            model = BTCDMNet_no(
+            model = BTCDNet_no(
                     in_chans=band, 
                     num_classes=num_classes, 
                     embed_dim=[96, 192], 
@@ -227,9 +227,9 @@ def main(config):
         else:
             raise ValueError("band patches error!")
 
-    elif model_type == "BTCDMNet_noT":
+    elif model_type == "BTCDNet_noT":
         if band_patches == 1:
-            model = BTCDMNet_noT(
+            model = BTCDNet_noT(
                     in_chans=band, 
                     num_classes=num_classes, 
                     embed_dim=[96, 192], 
@@ -252,9 +252,9 @@ def main(config):
         else:
             raise ValueError("band patches error!")
         
-    elif model_type == "BTCDMNet_noP":
+    elif model_type == "BTCDNet_noP":
         if band_patches == 1:
-            model = BTCDMNet_noP(
+            model = BTCDNet_noP(
                     in_chans=band, 
                     num_classes=num_classes, 
                     embed_dim=[96, 192], 
@@ -277,9 +277,9 @@ def main(config):
         else:
             raise ValueError("band patches error!")
 
-    elif model_type == "BTCDMNet":
+    elif model_type == "BTCDNet":
         if band_patches == 1:
-            model = BTCDMNet(
+            model = BTCDNet(
                     in_chans=band, 
                     num_classes=num_classes, 
                     embed_dim=[96, 192], 
@@ -440,7 +440,7 @@ def main(config):
     # ssh -NfL 8080:127.0.0.1:6061 ljs@172.18.206.54 -p 6522
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description="Run BTCDMNet")
+    parser = argparse.ArgumentParser(description="Run BTCDNet")
     parser.add_argument('--config', type=str, required=True, help="Path to the YAML config file")
     args = parser.parse_args()
     config = load_config(args.config)

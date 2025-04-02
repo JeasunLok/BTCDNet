@@ -1,18 +1,18 @@
-# BTCDMNet: Bayesian Tile Attention Network for Hyperspectral Mangroves Change Detection
+# BTCDNet: Bayesian Tile Attention Network for Hyperspectral Image Change Detection
 
 ***
 # Introduction
 
-<b> Official implementation of BTCDMNet by [Junshen Luo](https://github.com/JeasunLok), Jiahe Li, Xinlin Chu, Sai Yang, Lingjun Tao and Qian Shi. </b>
+<b> Official implementation of BTCDNet by [Junshen Luo](https://github.com/JeasunLok), Jiahe Li, Xinlin Chu, Sai Yang, Lingjun Tao and Qian Shi. </b>
 ***
 
 ***
 ## How to use it?
 ### 1. Installation
 ```
-git clone https://github.com/JeasunLok/BTCDMNet.git && cd BTCDMNet
-conda create -n BTCDMNet python=3.9
-conda activate BTCDMNet
+git clone https://github.com/JeasunLok/BTCDNet.git && cd BTCDNet
+conda create -n BTCDNet python=3.9
+conda activate BTCDNet
 pip install -r requirements.txt
 ```
 
@@ -25,7 +25,7 @@ Baiduyun: https://pan.baidu.com/s/1hyye2fVxoUaOJ6YR_RUSJg
 
 Google Drive: https://drive.google.com/drive/folders/1xe9i95_noh8dBW7sGn_z4uIfePBsa8r2
 
-### 3. Quick start to use our SOTA model BTCDMNet
+### 3. Quick start to use our SOTA model BTCDNet
 
 <b> You should change the settings in config.yaml especially `HSI_data_path` and `model_type` then: </b>
 ```

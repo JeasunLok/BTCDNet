@@ -11,10 +11,10 @@ from torch.utils.tensorboard import SummaryWriter
 from sklearn.metrics import ConfusionMatrixDisplay
 
 from models.SSTFormer import SSTFormer
-from models.BTCDMNet import BTCDMNet
-from models.BTCDMNet_no import BTCDMNet_no
-from models.BTCDMNet_noP import BTCDMNet_noP
-from models.BTCDMNet_noT import BTCDMNet_noT
+from models.BTCDNet import BTCDNet
+from models.BTCDNet_no import BTCDNet_no
+from models.BTCDNet_noP import BTCDNet_noP
+from models.BTCDNet_noT import BTCDNet_noT
 from models.CSANet import CSANet
 from models.BIT import BIT
 from models.GETNET import GETNET
@@ -33,7 +33,7 @@ pretrained = False # pretrained or not
 model_path = "" # model path
 
 # model settings
-model_type = "BTCDMNet" # SSTFormer CSANet BIT GETNET ReCNN BTCDMNet BTCDMNet_no BTCDMNet_noT BTCDMNet_noP 
+model_type = "BTCDNet" # SSTFormer CSANet BIT GETNET ReCNN BTCDNet BTCDNet_no BTCDNet_noT BTCDNet_noP 
 patches = 5
 band_patches = 1
 num_classes = 3
@@ -174,9 +174,9 @@ elif model_type == "ReCNN":
     else:
         raise ValueError("band patches error!")
     
-elif model_type == "BTCDMNet_no":
+elif model_type == "BTCDNet_no":
     if band_patches == 1:
-        model = BTCDMNet_no(
+        model = BTCDNet_no(
                 in_chans=band, 
                 num_classes=num_classes, 
                 embed_dim=[96, 192], 
@@ -199,9 +199,9 @@ elif model_type == "BTCDMNet_no":
     else:
         raise ValueError("band patches error!")
 
-elif model_type == "BTCDMNet_noT":
+elif model_type == "BTCDNet_noT":
     if band_patches == 1:
-        model = BTCDMNet_noT(
+        model = BTCDNet_noT(
                 in_chans=band, 
                 num_classes=num_classes, 
                 embed_dim=[96, 192], 
@@ -224,9 +224,9 @@ elif model_type == "BTCDMNet_noT":
     else:
         raise ValueError("band patches error!")
     
-elif model_type == "BTCDMNet_noP":
+elif model_type == "BTCDNet_noP":
     if band_patches == 1:
-        model = BTCDMNet_noP(
+        model = BTCDNet_noP(
                 in_chans=band, 
                 num_classes=num_classes, 
                 embed_dim=[96, 192], 
@@ -249,9 +249,9 @@ elif model_type == "BTCDMNet_noP":
     else:
         raise ValueError("band patches error!")
 
-elif model_type == "BTCDMNet":
+elif model_type == "BTCDNet":
     if band_patches == 1:
-        model = BTCDMNet(
+        model = BTCDNet(
                 in_chans=band, 
                 num_classes=num_classes, 
                 embed_dim=[96, 192], 

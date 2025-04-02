@@ -1,6 +1,6 @@
 data:
   num_samples: 100
-  HSI_data_path: "/home/ljs/BTCDMNet/data/Shenzhen.mat"
+  HSI_data_path: "./data/Shenzhen.mat"
 
 settings:
   mode: "train"
@@ -18,7 +18,7 @@ settings:
   random_seed: 3407
 
 model:
-  model_type: "BTCDMNet" # SSTFormer CSANet BIT GETNET ReCNN BTCDMNet BTCDMNet_no BTCDMNet_noT BTCDMNet_noP 
+  model_type: "BTCDNet" # SSTFormer CSANet BIT GETNET ReCNN BTCDNet BTCDNet_no BTCDNet_noT BTCDNet_noP 
   patches: 5
   band_patches: 1
   num_classes: 3
