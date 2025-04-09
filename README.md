@@ -6,6 +6,8 @@
 <b> Official implementation of BTCDNet by [Junshen Luo](https://github.com/JeasunLok), Jiahe Li, Xinlin Chu, Sai Yang, Lingjun Tao and Qian Shi. </b>
 ***
 
+![](images/btcdnet.png)
+
 ***
 ## How to use it?
 ### 1. Installation
