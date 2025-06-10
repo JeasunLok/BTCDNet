@@ -29,7 +29,7 @@ Google Drive: https://drive.google.com/drive/folders/1xe9i95_noh8dBW7sGn_z4uIfeP
 
 ### 3. Quick start to use our SOTA model BTCDNet
 
-<b> You should change the settings in config.yaml especially `HSI_data_path` and `model_type` then: </b>
+<b> You should change the settings in `config.yaml` especially `HSI_data_path` and `model_type` then: </b>
 ```
 chmod +x demo.sh
 ./demo.sh
