@@ -20,7 +20,7 @@ pip install -r requirements.txt
 
 ### 2. Download our datasets
 
-Download our datasets then place them in `data` folder
+Download our datasets then place them in `data` folder:
 
 Baiduyun: https://pan.baidu.com/s/1hyye2fVxoUaOJ6YR_RUSJg 
 (access code: js66)
